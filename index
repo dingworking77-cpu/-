@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบสั่งอาหาร - หน้าร้าน</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style> body { font-family: 'Prompt', sans-serif; } </style>
+</head>
+<body class="bg-gray-50 text-gray-800 pb-32">
+  <!-- Header -->
+  <header class="bg-white shadow-sm px-4 py-3 flex justify-between items-center sticky top-0 z-20">
+    <div class="flex items-center space-x-3">
+      <div class="bg-orange-500 text-white p-2.5 rounded-xl font-bold text-lg">🍽️</div>
+      <div>
+        <h1 class="font-bold text-base sm:text-lg">ระบบจัดการร้านอาหาร</h1>
+        <p class="text-xs sm:text-sm text-orange-600 font-semibold" id="header-label">● โหมดสั่งอาหาร (กำลังโหลดโต๊ะ...)</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto p-3 sm:p-4 space-y-4">
+    <!-- รายการอาหารที่สั่งไปแล้ว -->
+    <div class="bg-white p-4 rounded-2xl shadow-sm border border-orange-200">
+      <div class="flex justify-between items-center mb-2">
+        <h2 class="font-bold text-base sm:text-lg text-orange-600">📋 รายการอาหารที่สั่งแล้ว</h2>
+      </div>
+      <div id="active-orders-container" class="space-y-2 text-sm sm:text-base text-gray-600">
+        <p class="text-xs sm:text-sm text-gray-400">กำลังโหลดรายการ...</p>
+      </div>
+      <div class="mt-4 pt-3 border-t flex justify-between items-center">
+        <span class="text-xs sm:text-sm font-bold text-gray-700">ยอดรวมที่ต้องชำระ: <span id="table-total-price" class="text-orange-600 text-lg sm:text-xl font-bold">฿0</span></span>
+        <span class="text-xs sm:text-sm text-gray-500">💳 ชำระเงินติดต่อพนักงาน</span>
+      </div>
+    </div>
+
+    <!-- Category Banner & Recommended Menu Tab -->
+    <div class="bg-white p-4 rounded-2xl shadow-sm">
+      <h2 class="font-bold text-lg sm:text-xl mb-1">รายการเมนูอาหาร</h2>
+      <p class="text-xs sm:text-sm text-gray-500 mb-3">เลือกหมวดหมู่เมนูอาหารที่ต้องการสั่ง</p>
+      
+      <!-- Category Tabs -->
+      <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-none" id="category-tabs">
+        <button onclick="filterCategory('all')" class="cat-btn px-5 py-2.5 bg-orange-500 text-white rounded-xl text-sm sm:text-base font-medium whitespace-nowrap shadow-sm">ทั้งหมด</button>
+        <button onclick="filterCategory('recommended')" class="cat-btn px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm sm:text-base font-medium whitespace-nowrap shadow-sm">⭐ เมนูแนะนำ</button>
+        <button onclick="filterCategory('อาหารจานเดียว')" class="cat-btn px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm sm:text-base font-medium whitespace-nowrap shadow-sm">อาหารจานเดียว</button>
+        <button onclick="filterCategory('กับข้าว')" class="cat-btn px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm sm:text-base font-medium whitespace-nowrap shadow-sm">กับข้าว</button>
+        <button onclick="filterCategory('เครื่องดื่ม')" class="cat-btn px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm sm:text-base font-medium whitespace-nowrap shadow-sm">เครื่องดื่ม</button>
+        <button onclick="filterCategory('ของหวาน')" class="cat-btn px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm sm:text-base font-medium whitespace-nowrap shadow-sm">ของหวาน</button>
+      </div>
+    </div>
+
+    <!-- Menu Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="customer-menu-container"></div>
+  </main>
+
+  <!-- Floating Cart Bar -->
+  <div class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 shadow-xl z-20 flex justify-between items-center max-w-4xl mx-auto rounded-t-3xl">
+    <div>
+      <p class="text-xs sm:text-sm text-gray-500 font-medium">ตระกร้าสินค้า</p>
+      <p class="font-bold text-base sm:text-lg text-orange-600" id="cart-summary-text">0 รายการ | ฿0</p>
+    </div>
+    <button onclick="openCartModal()" class="bg-orange-500 hover:bg-orange-600 text-white px-6.5 py-3.5 rounded-2xl font-bold text-sm sm:text-base shadow-lg flex items-center gap-2">
+      <span>🛒 ตะกร้าสินค้า</span>
+    </button>
+  </div>
+
+  <!-- Cart Modal -->
+  <div id="cartModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-30">
+    <div class="bg-white p-6 rounded-3xl max-w-md w-full space-y-4 shadow-2xl">
+      <h3 class="font-bold text-lg sm:text-xl">ยืนยันคำสั่งซื้อ</h3>
+      <div id="cart-items-list" class="space-y-2 max-h-60 overflow-y-auto divide-y text-sm sm:text-base"></div>
+      <div>
+        <label class="text-xs sm:text-sm font-medium text-gray-600">หมายเหตุเพิ่มเติม (เช่น ไม่เผ็ด)</label>
+        <input type="text" id="orderNote" placeholder="ระบุหมายเหตุถึงครัว" class="w-full p-3 border rounded-xl text-sm sm:text-base mt-1">
+      </div>
+      <div class="flex justify-between items-center font-bold pt-2 border-t text-base sm:text-lg">
+        <span>ราคารวมทั้งหมด:</span>
+        <span class="text-orange-600 text-xl" id="cart-total-price">฿0</span>
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button onclick="closeCartModal()" class="w-1/2 py-3 bg-gray-100 hover:bg-gray-200 rounded-2xl text-sm sm:text-base font-bold">ปิด</button>
+        <button onclick="submitOrder()" class="w-1/2 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-2xl text-sm sm:text-base font-bold shadow-md">ส่งออเดอร์</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ⚠️ สำคัญ: นำ Web App URL ของ Google Apps Script มาวางแทนที่ตรงนี้
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzSLVSfGZW7sXL6xQGHAfZV-S-zQPXermaIpeGc1SSNcJFpPfUNxXHoUKnpb9Cq31Xw/exec"; 
+
+    // ดึงเลขโต๊ะจาก URL เช่น index.html?table=T1 (ถ้าไม่มีให้ค่าเริ่มต้นเป็น T1)
+    const urlParams = new URLSearchParams(window.location.search);
+    let currentTable = urlParams.get('table') || 'T1';
+    
+    document.getElementById('header-label').innerText = `● โหมดสั่งอาหาร (โต๊ะ ${currentTable})`;
+
+    let menus = [];
+    let cart = {}; 
+    let currentCategory = 'all';
+
+    window.onload = function() {
+      loadCustomerMenus();
+      loadTableOrders();
+      setInterval(loadTableOrders, 4000);
+    };
+
+    function loadCustomerMenus() {
+      fetch(`${SCRIPT_URL}?action=getMenu`)
+        .then(response => response.json())
+        .then(res => {
+          menus = res || [];
+          renderMenus();
+        })
+        .catch(err => console.error('Error loading menu:', err));
+    }
+
+    function loadTableOrders() {
+      fetch(`${SCRIPT_URL}?action=getOrders&table=${currentTable}`)
+        .then(response => response.json())
+        .then(orders => {
+          const container = document.getElementById('active-orders-container');
+          container.innerHTML = '';
+          let totalSum = 0;
+
+          if (!orders || orders.length === 0) {
+            container.innerHTML = `<p class="text-xs sm:text-sm text-gray-400 italic">ยังไม่มีรายการสั่งอาหาร หรือปิดบิลเรียบร้อยแล้ว</p>`;
+            document.getElementById('table-total-price').innerText = `฿0`;
+            return;
+          }
+
+          orders.forEach(ord => {
+            totalSum += Number(ord.totalPrice || 0);
+            container.innerHTML += `
+              <div class="flex justify-between items-center bg-orange-50/50 p-3 rounded-xl border border-orange-100">
+                <div>
+                  <span class="font-bold text-xs sm:text-sm text-orange-700">[${ord.timestamp}] ออเดอร์ #${ord.orderId}</span>
+                  <p class="text-xs sm:text-sm text-gray-700 mt-0.5">รายการ: ${ord.items} (จำนวน: ${ord.quantity}) ${ord.note ? ' - ' + ord.note : ''}</p>
+                </div>
+                <span class="font-bold text-base sm:text-lg text-orange-600">฿${ord.totalPrice}</span>
+              </div>
+            `;
+          });
+          document.getElementById('table-total-price').innerText = `฿${totalSum}`;
+        })
+        .catch(err => console.error('Error loading orders:', err));
+    }
+
+    function filterCategory(cat) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        btn.classList.remove('bg-orange-500', 'text-white');
+        btn.classList.add('bg-gray-100', 'text-gray-700');
+        if((cat === 'all' && btn.innerText.includes('ทั้งหมด')) || 
+           (cat === 'recommended' && btn.innerText.includes('เมนูแนะนำ')) || 
+           btn.innerText.includes(cat)) {
+          btn.classList.remove('bg-gray-100', 'text-gray-700');
+          btn.classList.add('bg-orange-500', 'text-white');
+        }
+      });
+      renderMenus();
+    }
+
+    function renderMenus() {
+      const container = document.getElementById('customer-menu-container');
+      container.innerHTML = '';
+      
+      let filtered = menus;
+      if (currentCategory === 'recommended') {
+        filtered = menus.filter(m => m.isRecommended === true);
+      } else if (currentCategory !== 'all') {
+        filtered = menus.filter(m => m.category === currentCategory);
+      }
+      
+      filtered.forEach(m => {
+        let qty = cart[m.menuId] ? cart[m.menuId].qty : 0;
+        let recBadge = m.isRecommended ? `<span class="text-[11px] bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-lg font-bold ml-1">⭐ แนะนำ</span>` : '';
+        
+        container.innerHTML += `
+          <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3 sm:gap-4">
+              <img src="${m.imageUrl || 'https://via.placeholder.com/120'}" class="w-24 h-24 sm:w-28 sm:h-28 object-cover rounded-2xl shadow-sm">
+              <div>
+                <h4 class="font-bold text-base sm:text-lg">${m.name} ${recBadge}</h4>
+                <p class="text-orange-600 font-bold text-base sm:text-lg mt-1">฿${m.price}</p>
+                <span class="text-xs bg-orange-50 text-orange-600 px-2.5 py-1 rounded-lg font-medium inline-block mt-1.5">${m.category}</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              ${qty > 0 ? `
+                <button onclick="updateQty('${m.menuId}', -1)" class="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-xl font-bold text-base">-</button>
+                <span class="font-bold text-base w-7 text-center">${qty}</span>
+              ` : ''}
+              <button onclick="updateQty('${m.menuId}', 1)" class="px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm sm:text-base font-bold shadow-md">+ เลือก</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function updateQty(menuId, change) {
+      let menu = menus.find(m => m.menuId === menuId);
+      if (!menu) return;
+      if (!cart[menuId]) {
+        if (change > 0) cart[menuId] = { ...menu, qty: 1 };
+      } else {
+        cart[menuId].qty += change;
+        if (cart[menuId].qty <= 0) delete cart[menuId];
+      }
+      renderMenus();
+      updateCartSummary();
+    }
+
+    function updateCartSummary() {
+      let totalQty = 0;
+      let totalPrice = 0;
+      Object.values(cart).forEach(item => {
+        totalQty += item.qty;
+        totalPrice += item.price * item.qty;
+      });
+      document.getElementById('cart-summary-text').innerText = `${totalQty} รายการ | ฿${totalPrice}`;
+    }
+
+    function openCartModal() {
+      let listContainer = document.getElementById('cart-items-list');
+      listContainer.innerHTML = '';
+      let totalPrice = 0;
+      let itemsArr = Object.values(cart);
+      if (itemsArr.length === 0) { alert('กรุณาเลือกเมนูก่อนครับ'); return; }
+
+      itemsArr.forEach(item => {
+        let sum = item.price * item.qty;
+        totalPrice += sum;
+        listContainer.innerHTML += `
+          <div class="py-2 flex justify-between items-center text-sm sm:text-base">
+            <div>
+              <p class="font-medium">${item.name}</p>
+              <p class="text-xs sm:text-sm text-gray-500">฿${item.price} x ${item.qty}</p>
+            </div>
+            <span class="font-bold">฿${sum}</span>
+          </div>
+        `;
+      });
+      document.getElementById('cart-total-price').innerText = `฿${totalPrice}`;
+      document.getElementById('cartModal').classList.remove('hidden');
+    }
+
+    function closeCartModal() { document.getElementById('cartModal').classList.add('hidden'); }
+
+    function submitOrder() {
+      let note = document.getElementById('orderNote').value;
+      let itemsArr = Object.values(cart);
+      if (itemsArr.length === 0) return;
+
+      let totalQty = itemsArr.reduce((sum, i) => sum + i.qty, 0);
+      let totalPrice = itemsArr.reduce((sum, i) => sum + (i.price * i.qty), 0);
+      let itemCodes = itemsArr.map(i => `${i.name} (${i.qty})`).join(', ');
+
+      let orderData = {
+        tableNo: currentTable,
+        note: note,
+        quantity: totalQty,
+        totalPrice: totalPrice,
+        items: itemCodes
+      };
+
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'saveOrder', orderData: orderData })
+      })
+      .then(response => response.json())
+      .then(res => {
+        if(res.success) {
+          alert('สั่งอาหารสำเร็จ! รหัสออเดอร์: ' + res.orderId);
+          cart = {};
+          document.getElementById('orderNote').value = '';
+          updateCartSummary();
+          closeCartModal();
+          renderMenus();
+          loadTableOrders();
+        } else {
+          alert('เกิดข้อผิดพลาดในการสั่งอาหาร');
+        }
+      })
+      .catch(err => {
+        console.error('Error submitting order:', err);
+        alert('ไม่สามารถเชื่อมต่อกับระบบได้');
+      });
+    }
+  </script>
+</body>
+</html>
