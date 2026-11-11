@@ -6,11 +6,21 @@
   <title>ระบบสั่งอาหาร - หน้าร้าน</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style> body { font-family: 'Prompt', sans-serif; } </style>
+  <style> 
+    body { font-family: 'Prompt', sans-serif; } 
+    /* ซ่อนแถบ Scrollbar สำหรับเบราว์เซอร์ต่างๆ */
+    html, body {
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE and Edge */
+    }
+    html::-webkit-scrollbar, body::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera */
+    }
+  </style>
 </head>
-<body class="bg-gray-50 text-gray-800 pb-32">
-  <!-- Header -->
-  <header class="bg-white shadow-sm px-4 py-3 flex justify-between items-center sticky top-0 z-20">
+<body class="bg-gray-50 text-gray-800 pb-32 pt-2">
+  <!-- Header (ปรับเพิ่มขอบขวา pr-12 เพื่อหลบปุ่มภายนอกมุมขวาบน) -->
+  <header class="bg-white shadow-sm px-4 py-3 pr-14 flex justify-between items-center sticky top-0 z-20 rounded-b-2xl max-w-4xl mx-auto">
     <div class="flex items-center space-x-3">
       <div class="bg-orange-500 text-white p-2.5 rounded-xl font-bold text-lg">🍽️</div>
       <div>
@@ -37,20 +47,23 @@
 
     <!-- Category Banner & Recommended Menu Tab -->
     <div class="bg-white p-4 rounded-2xl shadow-sm">
-      <h2 class="font-bold text-lg sm:text-xl mb-1">รายการเมนูอาหาร</h2>
-      <p class="text-xs sm:text-sm text-gray-500 mb-3">เลือกหมวดหมู่เมนูอาหารหรือพิมพ์ค้นหาอาหารที่ต้องการ</p>
-      
-      <!-- Category Tabs & Search input -->
-      <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-none items-center" id="category-tabs">
-        <button onclick="filterCategory('all')" class="cat-btn px-5 py-2.5 bg-orange-500 text-white rounded-xl text-sm sm:text-base font-medium whitespace-nowrap shadow-sm shrink-0">ทั้งหมด</button>
+      <div class="flex flex-wrap justify-between items-start gap-2 mb-3">
+        <div>
+          <h2 class="font-bold text-lg sm:text-xl mb-1">รายการเมนูอาหาร</h2>
+          <p class="text-xs sm:text-sm text-gray-500">เลือกหมวดหมู่เมนูอาหารหรือพิมพ์ค้นหาอาหารที่ต้องการ</p>
+        </div>
         
-        <!-- Search Input Field ปรับขนาดให้เล็กกะทัดรัด และขยายกว้างขึ้นเมื่อกดคลิก (Focus) -->
+        <!-- Search Input Field ย้ายมาไว้มุมขวาบนข้างหัวข้อ -->
         <div class="relative shrink-0">
-          <input type="text" id="searchInput" oninput="onSearchInput()" placeholder="ค้นหา..." class="w-24 sm:w-28 focus:w-44 sm:focus:w-56 pl-7 pr-2 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all duration-300">
+          <input type="text" id="searchInput" oninput="onSearchInput()" placeholder="ค้นหา..." class="w-28 sm:w-36 focus:w-48 sm:focus:w-60 pl-7 pr-2 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all duration-300">
           <span class="absolute left-2.5 top-2 text-gray-400 text-xs sm:text-sm pointer-events-none">🔍</span>
         </div>
-
-        <button onclick="filterCategory('recommended')" class="cat-btn px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm sm:text-base font-medium whitespace-nowrap shadow-sm shrink-0">⭐ เมนูแนะนำ</button>
+      </div>
+      
+      <!-- Category Tabs (นำช่องค้นหาเดิมออก และลบไอคอนดาวที่เมนูแนะนำ) -->
+      <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-none items-center" id="category-tabs">
+        <button onclick="filterCategory('all')" class="cat-btn px-5 py-2.5 bg-orange-500 text-white rounded-xl text-sm sm:text-base font-medium whitespace-nowrap shadow-sm shrink-0">ทั้งหมด</button>
+        <button onclick="filterCategory('recommended')" class="cat-btn px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm sm:text-base font-medium whitespace-nowrap shadow-sm shrink-0">เมนูแนะนำ</button>
         <button onclick="filterCategory('อาหารจานเดียว')" class="cat-btn px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm sm:text-base font-medium whitespace-nowrap shadow-sm shrink-0">อาหารจานเดียว</button>
         <button onclick="filterCategory('กับข้าว')" class="cat-btn px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm sm:text-base font-medium whitespace-nowrap shadow-sm shrink-0">กับข้าว</button>
         <button onclick="filterCategory('เครื่องดื่ม')" class="cat-btn px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm sm:text-base font-medium whitespace-nowrap shadow-sm shrink-0">เครื่องดื่ม</button>
@@ -64,7 +77,7 @@
 
   <!-- Notification Toast Container -->
   <div id="toast" class="fixed top-5 right-5 transform translate-x-full transition-transform duration-300 z-50 bg-gray-900 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-gray-700 text-sm font-medium">
-    <span id="toast-icon">ℹ️</span>
+    <span id="toast-icon"></span>
     <span id="toast-msg">ข้อความ</span>
   </div>
 
@@ -99,6 +112,18 @@
     </div>
   </div>
 
+  <!-- Image Preview Modal (ขยายรูปภาพเมื่อกดที่รูป) -->
+  <div id="imageModal" onclick="closeImageModal()" class="fixed inset-0 bg-black/80 hidden flex flex-col items-center justify-center p-4 z-40 backdrop-blur-sm transition-all duration-300">
+    <div class="relative max-w-lg w-full bg-white rounded-3xl p-3 shadow-2xl overflow-hidden" onclick="event.stopPropagation()">
+      <button onclick="closeImageModal()" class="absolute top-5 right-5 w-9 h-9 bg-black/60 hover:bg-black text-white rounded-full flex items-center justify-center text-lg font-bold z-10 transition-colors">✕</button>
+      <img id="modalImage" src="" alt="ขยายรูปอาหาร" class="w-full h-72 sm:h-96 object-cover rounded-2xl shadow-inner">
+      <div class="p-3 text-center">
+        <h3 id="modalTitle" class="font-bold text-lg sm:text-xl text-gray-800"></h3>
+        <p id="modalPrice" class="text-orange-600 font-bold text-base sm:text-lg mt-0.5"></p>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ⚠️ สำคัญ: นำ Web App URL ของ Google Apps Script มาวางแทนที่ตรงนี้
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzSLVSfGZW7sXL6xQGHAfZV-S-zQPXermaIpeGc1SSNcJFpPfUNxXHoUKnpb9Cq31Xw/exec"; 
@@ -127,7 +152,7 @@
     let currentCategory = 'all';
     let searchQuery = '';
 
-    function showToast(message, icon = '✅') {
+    function showToast(message, icon = '') {
       const toast = document.getElementById('toast');
       document.getElementById('toast-msg').innerText = message;
       document.getElementById('toast-icon').innerText = icon;
@@ -245,11 +270,15 @@
       filtered.forEach(m => {
         let qty = cart[m.menuId] ? cart[m.menuId].qty : 0;
         let recBadge = m.isRecommended ? `<span class="text-[11px] bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-lg font-bold ml-1">⭐ แนะนำ</span>` : '';
+        let imgUrl = m.imageUrl || 'https://via.placeholder.com/120';
         
         container.innerHTML += `
           <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border flex items-center justify-between gap-4 hover:border-orange-200 transition-all">
             <div class="flex items-center gap-3 sm:gap-4">
-              <img src="${m.imageUrl || 'https://via.placeholder.com/120'}" class="w-24 h-24 sm:w-28 sm:h-28 object-cover rounded-2xl shadow-sm bg-gray-100" onerror="this.src='https://placehold.co/120x120/f97316/ffffff?text=Food'">
+              <div class="relative group cursor-pointer overflow-hidden rounded-2xl shrink-0" onclick="openImageModal('${imgUrl.replace(/'/g, "\\'")}', '${m.name.replace(/'/g, "\\'")}', ${m.price})">
+                <img src="${imgUrl}" class="w-24 h-24 sm:w-28 sm:h-28 object-cover rounded-2xl shadow-sm bg-gray-100 group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://placehold.co/120x120/f97316/ffffff?text=Food'">
+                <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-medium rounded-2xl">🔍 ขยาย</div>
+              </div>
               <div>
                 <h4 class="font-bold text-base sm:text-lg">${m.name} ${recBadge}</h4>
                 <p class="text-orange-600 font-bold text-base sm:text-lg mt-1">฿${m.price}</p>
@@ -266,6 +295,17 @@
           </div>
         `;
       });
+    }
+
+    function openImageModal(url, name, price) {
+      document.getElementById('modalImage').src = url;
+      document.getElementById('modalTitle').innerText = name;
+      document.getElementById('modalPrice').innerText = `฿${price}`;
+      document.getElementById('imageModal').classList.remove('hidden');
+    }
+
+    function closeImageModal() {
+      document.getElementById('imageModal').classList.add('hidden');
     }
 
     function updateQty(menuId, change) {
