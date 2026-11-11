@@ -44,10 +44,10 @@
       <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-none items-center" id="category-tabs">
         <button onclick="filterCategory('all')" class="cat-btn px-5 py-2.5 bg-orange-500 text-white rounded-xl text-sm sm:text-base font-medium whitespace-nowrap shadow-sm shrink-0">ทั้งหมด</button>
         
-        <!-- Search Input Field ข้างๆ ปุ่มทั้งหมด -->
-        <div class="relative shrink-0 min-w-[180px] sm:min-w-[220px]">
-          <input type="text" id="searchInput" oninput="onSearchInput()" placeholder="🔍 ค้นหาเมนูอาหาร..." class="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all">
-          <span class="absolute left-3 top-2.5 text-gray-400 text-xs sm:text-sm">🔍</span>
+        <!-- Search Input Field ปรับขนาดให้เล็กกะทัดรัด และขยายกว้างขึ้นเมื่อกดคลิก (Focus) -->
+        <div class="relative shrink-0">
+          <input type="text" id="searchInput" oninput="onSearchInput()" placeholder="ค้นหา..." class="w-24 sm:w-28 focus:w-44 sm:focus:w-56 pl-7 pr-2 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all duration-300">
+          <span class="absolute left-2.5 top-2 text-gray-400 text-xs sm:text-sm pointer-events-none">🔍</span>
         </div>
 
         <button onclick="filterCategory('recommended')" class="cat-btn px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm sm:text-base font-medium whitespace-nowrap shadow-sm shrink-0">⭐ เมนูแนะนำ</button>
